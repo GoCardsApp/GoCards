@@ -1,8 +1,10 @@
 package pl.gocards.ui.home
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -89,6 +91,9 @@ class HomeActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            enableEdgeToEdge()
+        }
         createDbRootFolderIfNotExists()
 
         /**

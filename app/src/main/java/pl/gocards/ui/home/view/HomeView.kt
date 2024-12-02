@@ -159,7 +159,7 @@ private fun HomePager(
 private fun BottomNavigation(pagerState: PagerState) {
     val scope = rememberCoroutineScope()
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+        //containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
     ) {
         NavigationBarItem(
             icon = {

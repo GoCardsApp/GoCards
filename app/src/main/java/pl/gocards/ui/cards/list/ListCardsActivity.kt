@@ -1,9 +1,11 @@
 package pl.gocards.ui.cards.list
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.addCallback
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -65,6 +67,9 @@ class ListCardsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         deckDbPath = intent.getStringExtra(DECK_DB_PATH) ?: return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            enableEdgeToEdge()
+        }
 
         /**
          * It needs to be an AppCompatActivity instead of a ComponentActivity,

@@ -1,8 +1,10 @@
 package pl.gocards.ui.cards.slider
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import pl.gocards.App
 import pl.gocards.db.deck.DeckDbUtil
 import pl.gocards.ui.cards.slider.model.SliderCardsViewModel
@@ -27,6 +29,10 @@ class BrowseCardSliderActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            enableEdgeToEdge()
+        }
+
         val deckDbPath = intent.getStringExtra(DECK_DB_PATH) ?: return
         val owner = this
         val application = application as App

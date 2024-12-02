@@ -1,6 +1,7 @@
 package pl.gocards.ui.theme
 
 import android.app.Activity
+import android.os.Build
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -22,6 +23,10 @@ fun SelectBarColorsTheme(
     colorScheme: ColorScheme,
     isSelectionMode: Boolean,
 ) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        return
+    }
+
     if (isSelectionMode) {
         val appBarContainerColor by animateColorAsState(
             targetValue = ExtendedTheme.colors.colorItemSelected,
