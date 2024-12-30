@@ -97,7 +97,7 @@ open class DynamicPagerModel<E>(
      *
      * The method is executed after the sliding is completed.
      */
-    protected fun deleteWaitingItem() {
+    protected open fun deleteWaitingItem() {
         synchronized(items) {
             synchronized(waitingToDeleteItem) {
                 while (true) {
@@ -254,8 +254,6 @@ open class DynamicPagerModel<E>(
         }
         settledPage.postValue(page)
         targetPage.postValue(page)
-
-
     }
 
     fun getAnimateScrollToPageLiveData(): LiveData<Int?> {

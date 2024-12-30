@@ -2,6 +2,9 @@ package pl.gocards.ui.cards.slider.slider.model
 
 import android.app.Application
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import pl.gocards.db.room.AppDatabase
 import pl.gocards.db.room.DeckDatabase
 import pl.gocards.room.entity.deck.CardSlider
@@ -90,7 +93,7 @@ open class BaseSliderCardsModel(
     /**
      * C_D_25 Delete the card
      */
-    suspend fun deleteCardAndSlideToNextPage(page: Int, sliderCard: SliderCardUi) {
+    fun deleteCardAndSlideToNextPage(page: Int, sliderCard: SliderCardUi) {
         val cards = this.items.value
         if (cards.size == 1) {
             deleteCardDb(page, sliderCard)
@@ -104,7 +107,7 @@ open class BaseSliderCardsModel(
     /**
      * C_D_25 Delete the card
      */
-    suspend fun deleteWaitingCard() {
+    override fun deleteWaitingItem() {
         val waitingToDeleteCard = this.waitingToDeleteCard
 
         if (waitingToDeleteCard != null) {
@@ -119,7 +122,7 @@ open class BaseSliderCardsModel(
     /**
      * C_D_25 Delete the card
      */
-    private suspend fun deleteCardDb(page: Int, sliderCard: SliderCardUi) {
+    private fun deleteCardDb(page: Int, sliderCard: SliderCardUi) {
         val cards = items.value
 
         if (cards[page].id != sliderCard.id) {
@@ -128,8 +131,10 @@ open class BaseSliderCardsModel(
 
         val mode = sliderCard.mode.value
         if (mode != Mode.NEW) {
-            val card = deckDb.cardKtxDao().getCard(sliderCard.id)!!
-            deckDb.cardKtxDao().delete(card)
+            viewModelScope.launch(Dispatchers.IO) {
+                val card = deckDb.cardKtxDao().getCard(sliderCard.id)!!
+                deckDb.cardKtxDao().delete(card)
+            }
         }
     }
 

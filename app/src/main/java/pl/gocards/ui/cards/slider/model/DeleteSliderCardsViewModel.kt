@@ -39,18 +39,7 @@ open class DeleteSliderCardsViewModel(
      * C_D_25 Delete the card
      */
     open fun deleteCard(page: Int, sliderCard: SliderCardUi) {
-        viewModelScope.launch(Dispatchers.IO) {
-            sliderCardsModel.deleteCardAndSlideToNextPage(page, sliderCard)
-        }
-    }
-
-    /**
-     * C_D_25 Delete the card
-     */
-    fun deleteWaitingCard() {
-        viewModelScope.launch(Dispatchers.IO) {
-            sliderCardsModel.deleteWaitingCard()
-        }
+        sliderCardsModel.deleteCardAndSlideToNextPage(page, sliderCard)
     }
 
     /**
