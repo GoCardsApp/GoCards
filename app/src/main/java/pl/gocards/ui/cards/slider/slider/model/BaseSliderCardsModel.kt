@@ -156,7 +156,24 @@ open class BaseSliderCardsModel(
      * ----------------------------------------------------------------------------------------- */
 
     fun findById(id: Int): SliderCardUi? {
-        val cards = this.items.value
-        return cards.stream().filter { it.id == id }.findAny().getOrNull()
+        return this.items.value
+            .stream()
+            .filter { it.id == id }
+            .findAny()
+            .getOrNull()
+    }
+
+    fun replaceById(id: Int, sliderCard: SliderCardUi) {
+        synchronized (items) {
+            val sliderCards = items.value.toMutableList()
+            sliderCards.replaceAll {
+                if (it.id == id) {
+                    sliderCard
+                } else {
+                    it
+                }
+            }
+            items.value = sliderCards
+        }
     }
 }

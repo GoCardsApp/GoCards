@@ -1,6 +1,7 @@
 package pl.gocards.ui.cards.slider.model
 
 import android.app.Application
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -218,6 +219,9 @@ open class BaseSliderCardsViewModel(
             val ordinal = sliderCardsModel.findOrdinalNotNewBefore(page)
             val id = newCardsModel.saveCard(card, ordinal)
 
+            val editCard = SliderCardUi(id, ordinal, null, mutableStateOf(defaultMode))
+            sliderCardsModel.replaceById(card.id, editCard)
+
             if (defaultMode == Mode.STUDY) {
                 studyCardsModel.reloadCard(id)
             } else if (defaultMode == Mode.EDIT) {
@@ -225,7 +229,6 @@ open class BaseSliderCardsViewModel(
             }
 
             setMode(page, defaultMode)
-            // studyCardsModel.setTermHeightPx(id = id, previousId = null)
         }
     }
 

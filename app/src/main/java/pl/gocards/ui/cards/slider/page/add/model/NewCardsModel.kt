@@ -66,11 +66,13 @@ class NewCardsModel internal constructor(
 
     private suspend fun getLastCardId(): Int {
         return if (this.lastCardId == 0) {
-            val lastCardId = deckDb.cardKtxDao().lastId() + 1
+            val idsPoolToSave = 1000
+            val lastCardId = deckDb.cardKtxDao().lastId() + idsPoolToSave
             this@NewCardsModel.lastCardId = lastCardId
             return lastCardId
         } else {
-            lastCardId + 1
+            lastCardId += 1
+            lastCardId
         }
     }
 
