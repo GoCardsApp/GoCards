@@ -47,7 +47,7 @@ class EditCardSliderActivity : ComponentActivity() {
         setContent {
 
             LaunchedEffect(true) {
-                if (!viewModel.isLoaded()) {
+                if (!viewModel.isNotEmpty()) {
                     if (addNewCard) {
                         viewModel.loadAllCardsAndAddNewCard()
                     } else if (newCardAfterCardId != 0) {

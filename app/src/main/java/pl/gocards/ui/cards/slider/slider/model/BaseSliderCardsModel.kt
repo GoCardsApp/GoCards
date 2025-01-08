@@ -155,6 +155,14 @@ open class BaseSliderCardsModel(
      * Helpers
      * ----------------------------------------------------------------------------------------- */
 
+    fun isNotEmpty(): Boolean {
+        return items.value.isNotEmpty()
+    }
+
+    fun size(): Int {
+        return items.value.size
+    }
+
     fun findById(id: Int): SliderCardUi? {
         return this.items.value
             .stream()
@@ -175,5 +183,11 @@ open class BaseSliderCardsModel(
             }
             items.value = sliderCards
         }
+    }
+
+    fun setMode(page: Int, mode: Mode) {
+        val sliderCards = items.value
+        val sliderCard = sliderCards[page]
+        sliderCard.mode.value = mode
     }
 }

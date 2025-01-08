@@ -58,7 +58,7 @@ class StudyCardSliderActivity : ComponentActivity() {
 
         setContent {
             LaunchedEffect(true) {
-                if (!viewModel.isLoaded()) {
+                if (!viewModel.isNotEmpty()) {
                     viewModel.loadForgottenCards()
                 } else {
                     viewModel.refreshSettledPage()

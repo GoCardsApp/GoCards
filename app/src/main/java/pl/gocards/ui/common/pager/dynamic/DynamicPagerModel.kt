@@ -2,6 +2,7 @@ package pl.gocards.ui.common.pager.dynamic
 
 import android.app.Application
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -39,7 +40,7 @@ open class DynamicPagerModel<E>(
         animateScrollToPendingPage()
     }
 
-    val items = mutableStateOf<List<E>>(emptyList())
+    protected val items = mutableStateOf<List<E>>(emptyList())
     val scrollEnabled: MutableState<Boolean> = mutableStateOf(true)
 
     /* -----------------------------------------------------------------------------------------
@@ -284,11 +285,19 @@ open class DynamicPagerModel<E>(
      * Gets/sets
      * ----------------------------------------------------------------------------------------- */
 
-    fun getItem(page: Int): E? {
+    fun getItem(page: Int): E {
         return items.value[page]
     }
 
     fun getItemOrNull(page: Int): E? {
         return items.value.getOrNull(page)
+    }
+
+    fun getItems(): List<E> {
+        return items.value
+    }
+
+    fun getItemsState(): State<List<E>> {
+        return items
     }
 }

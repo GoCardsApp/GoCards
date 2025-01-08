@@ -39,8 +39,8 @@ open class BaseSliderCardsViewModel(
      * Start
      * ----------------------------------------------------------------------------------------- */
 
-    fun isLoaded(): Boolean {
-        return sliderCardsModel.items.value.isNotEmpty()
+    fun isNotEmpty(): Boolean {
+        return sliderCardsModel.isNotEmpty()
     }
 
     fun loadForgottenCards() {
@@ -228,14 +228,8 @@ open class BaseSliderCardsViewModel(
                 editCardsModel.reloadCard(id)
             }
 
-            setMode(page, defaultMode)
+            sliderCardsModel.setMode(page, defaultMode)
         }
-    }
-
-    private fun setMode(page: Int, mode: Mode) {
-        val sliderCards = sliderCardsModel.items.value
-        val sliderCard = sliderCards[page]
-        sliderCard.mode.value = mode
     }
 
     /* -----------------------------------------------------------------------------------------
@@ -247,11 +241,9 @@ open class BaseSliderCardsViewModel(
      */
     fun editMode(page: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            val cards = sliderCardsModel.items.value.toMutableList()
-            val sliderCard = cards[page]
+            val sliderCard = sliderCardsModel.getItem(page)
             editCardsModel.loadCard(sliderCard.id)
             sliderCard.mode.value = Mode.EDIT
-            sliderCardsModel.items.value = cards
         }
     }
 
@@ -262,7 +254,7 @@ open class BaseSliderCardsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             editCardsModel.saveCard(card)
             studyCardsModel.reloadCard(card.id)
-            setMode(page, defaultMode)
+            sliderCardsModel.setMode(page, defaultMode)
         }
     }
 
@@ -273,7 +265,7 @@ open class BaseSliderCardsViewModel(
     fun saveCard() {
         val page = sliderCardsModel.getSettledPage() ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            val sliderCards = sliderCardsModel.items.value
+            val sliderCards = getSliderCards()
             saveCard(page, sliderCards)
         }
     }
@@ -299,13 +291,13 @@ open class BaseSliderCardsViewModel(
 
             val currentPage = sliderCardsModel.getSettledPage() ?: 0
 
-            if (sliderCardsModel.items.value.size > currentPage) {
-                val sliderCard = sliderCardsModel.getItem(currentPage)!!
+            if (sliderCardsModel.size() > currentPage) {
+                val sliderCard = sliderCardsModel.getItem(currentPage)
                 studyCardsModel.setTermHeightPx(id = sliderCard.id, previousId = null)
             }
 
-            if (sliderCardsModel.items.value.size > currentPage + 1) {
-                val sliderCard = sliderCardsModel.getItem(currentPage + 1)!!
+            if (sliderCardsModel.size() > currentPage + 1) {
+                val sliderCard = sliderCardsModel.getItem(currentPage + 1)
                 studyCardsModel.setTermHeightPx(id = sliderCard.id, previousId = null)
             }
         }
@@ -316,6 +308,6 @@ open class BaseSliderCardsViewModel(
      * ----------------------------------------------------------------------------------------- */
 
     private fun getSliderCards(): List<SliderCardUi> {
-        return sliderCardsModel.items.value
+        return sliderCardsModel.getItems()
     }
 }

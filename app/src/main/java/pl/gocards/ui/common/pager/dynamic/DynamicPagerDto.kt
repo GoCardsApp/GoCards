@@ -32,7 +32,7 @@ data class DynamicPagerDto<E>(
         @Composable
         fun <E> create(viewModel: DynamicPagerModel<E>): DynamicPagerDto<E> {
             return DynamicPagerDto(
-                items = viewModel.items,
+                items = viewModel.getItemsState(),
 
                 settledPage = viewModel.getSettledPageLiveData().observeAsState(),
                 setSettledPage = { viewModel.setSettledPage(it) },

@@ -38,7 +38,7 @@ open class UndoSliderCardsViewModel(
 
     fun handleOnBackPressed(): Boolean {
         val currentPage = sliderCardsModel.getSettledPage() ?: return false
-        val sliderCards = sliderCardsModel.items.value
+        val sliderCards = sliderCardsModel.getItems()
         val currentCard = sliderCards[currentPage]
 
         when (currentCard.mode.value) {

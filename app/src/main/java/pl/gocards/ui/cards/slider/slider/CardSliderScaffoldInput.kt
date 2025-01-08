@@ -88,7 +88,7 @@ class CardSliderScaffoldInputFactory {
             preview = false,
             deckName = deckName,
             snackbarHostState = snackbarHostState,
-            sliderCards = viewModel.sliderCardsModel.items.value,
+            sliderCards = viewModel.sliderCardsModel.getItems(),
             loaded = viewModel.sliderCardsModel.loaded.value,
             dynamicPager = DynamicPagerDto.create(viewModel.sliderCardsModel)
                 .copy(
