@@ -12,11 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import pl.gocards.R
+import pl.gocards.ui.cards.slider.page.card.SliderCardPage
 import pl.gocards.ui.cards.slider.page.edit.DisabledField
 import pl.gocards.ui.cards.slider.page.edit.MultilineEditField
 import pl.gocards.ui.cards.slider.page.edit.model.EditCardUi
 import pl.gocards.ui.cards.slider.page.edit.testEditCardUi
-import pl.gocards.ui.cards.slider.slider.SliderCardPage
 
 
 @Preview(showBackground = true)
@@ -53,7 +53,7 @@ fun NewCardPage(
                 .verticalScroll(rememberScrollState())
         ) {
             MultilineEditField(R.string.card_new_term_label, newCard.term)
-            MultilineEditField(R.string.card_new_definition_label, newCard.definition)
+            MultilineEditField(R.string.card_new_definition_label, newCard.definition, 15)
             DisabledField(newCard.disabled)
         }
     }

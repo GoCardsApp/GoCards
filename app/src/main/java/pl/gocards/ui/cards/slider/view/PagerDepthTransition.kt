@@ -1,4 +1,4 @@
-package pl.gocards.ui.cards.slider.slider
+package pl.gocards.ui.cards.slider.view
 
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.MutableState

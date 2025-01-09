@@ -27,8 +27,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pl.gocards.R
+import pl.gocards.ui.cards.slider.page.card.SliderCardPage
 import pl.gocards.ui.cards.slider.page.edit.model.EditCardUi
-import pl.gocards.ui.cards.slider.slider.SliderCardPage
 import java.util.Date
 
 val testEditCardUi = @Composable {
@@ -72,7 +72,7 @@ fun EditCardPage(
                 .verticalScroll(rememberScrollState())
         ) {
             MultilineEditField(R.string.card_new_term_label, editCard.term)
-            MultilineEditField(R.string.card_new_definition_label, editCard.definition)
+            MultilineEditField(R.string.card_new_definition_label, editCard.definition, 15)
             NextReplayAtField(editCard.nextReplayAt)
             DisabledField(editCard.disabled)
         }
@@ -83,13 +83,14 @@ fun EditCardPage(
 fun ColumnScope.MultilineEditField(
     @StringRes label: Int,
     value: MutableState<String> = mutableStateOf(""),
+    lines: Int = 6,
 ) {
     OutlinedTextField(
         value = value.value,
         onValueChange = { value.value = it },
         label = { Text(stringResource(label)) },
-        minLines = 6,
-        maxLines = 6,
+        minLines = lines,
+        maxLines = lines,
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp, 8.dp, 8.dp, 0.dp)

@@ -1,8 +1,9 @@
-package pl.gocards.ui.cards.slider.slider
+package pl.gocards.ui.cards.slider.view
 
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -13,12 +14,12 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.CoroutineScope
 import pl.gocards.App
 import pl.gocards.R
-import pl.gocards.ui.cards.slider.model.SliderCardsViewModel
+import pl.gocards.dynamic_pager.DynamicPagerUIMediator
+import pl.gocards.ui.cards.slider.model.CardSliderViewModel
+import pl.gocards.ui.cards.slider.page.card.model.SliderCardUi
 import pl.gocards.ui.cards.slider.page.edit.model.EditCardUi
 import pl.gocards.ui.cards.slider.page.study.model.StudyCardUi
 import pl.gocards.ui.cards.slider.page.study.ui.definition.DefinitionButtonsActions
-import pl.gocards.ui.cards.slider.slider.model.SliderCardUi
-import pl.gocards.ui.common.pager.dynamic.DynamicPagerDto
 import pl.gocards.ui.common.showSnackbar
 import pl.gocards.ui.filesync_pro.AutoSyncViewModel
 import pl.gocards.util.FirebaseAnalyticsHelper
@@ -26,7 +27,7 @@ import pl.gocards.util.FirebaseAnalyticsHelper
 /**
  * @author Grzegorz Ziemski
  */
-data class CardSliderScaffoldInput(
+data class CardSliderUIMediator(
     val onBack: () -> Unit = {},
     val isDarkTheme: Boolean,
     val preview: Boolean,
@@ -36,9 +37,9 @@ data class CardSliderScaffoldInput(
     val sliderCards: List<SliderCardUi>,
     val loaded: Boolean = false,
 
-    val dynamicPager: DynamicPagerDto<SliderCardUi>,
+    val dynamicPager: DynamicPagerUIMediator<SliderCardUi>,
 
-    val studyPage: StudyPage,
+    val studyPage: StudyPage?,
     val setWindowHeightPx: (Int) -> Unit = {},
     val noMoreCardsToRepeat: () -> Unit = {},
 
@@ -49,7 +50,7 @@ data class CardSliderScaffoldInput(
 /**
  * @author Grzegorz Ziemski
  */
-class CardSliderScaffoldInputFactory {
+class CardSliderUIMediatorFactory {
 
     private lateinit var snackbarHostState: SnackbarHostState
     private lateinit var scope: CoroutineScope
@@ -59,19 +60,19 @@ class CardSliderScaffoldInputFactory {
     private lateinit var analytics: FirebaseAnalyticsHelper
 
     private lateinit var application: App
-    private lateinit var viewModel: SliderCardsViewModel
+    private lateinit var viewModel: CardSliderViewModel
 
     @Composable
     fun getInstance(
         onBack: () -> Unit = {},
         deckName: String,
-        viewModel: SliderCardsViewModel,
+        viewModel: CardSliderViewModel,
         autoSyncCardsModel: AutoSyncViewModel?,
         showRateButtons: Boolean,
         noMoreCardsToRepeat: () -> Unit,
         analytics: FirebaseAnalyticsHelper,
         application: App
-    ): CardSliderScaffoldInput {
+    ): CardSliderUIMediator {
         this.viewModel = viewModel
         this.analytics = analytics
         this.application = application
@@ -82,21 +83,21 @@ class CardSliderScaffoldInputFactory {
         cardDeletedMessage = stringResource(R.string.cards_list_toast_deleted_card)
         restoreLabel = stringResource(R.string.restore)
 
-        return CardSliderScaffoldInput(
+        return CardSliderUIMediator(
             onBack = onBack,
             isDarkTheme = application.getDarkMode() ?: isSystemInDarkTheme(),
             preview = false,
             deckName = deckName,
             snackbarHostState = snackbarHostState,
-            sliderCards = viewModel.sliderCardsModel.getItems(),
-            loaded = viewModel.sliderCardsModel.loaded.value,
-            dynamicPager = DynamicPagerDto.create(viewModel.sliderCardsModel)
+            sliderCards = viewModel.sliderCardManager.items.value,
+            loaded = viewModel.sliderCardManager.loaded.value,
+            dynamicPager = DynamicPagerUIMediator.create(viewModel.sliderCardManager)
                 .copy(
-                    setSettledPage = { viewModel.setSettledPage(it) },
+                    setSettledPage = { viewModel.updateSettledPage(it) },
                 ),
             noMoreCardsToRepeat = noMoreCardsToRepeat,
-            studyPage = StudyPage(
-                studyCards = viewModel.studyCardsModel.cards,
+            studyPage = if (viewModel.studyCardManager != null) StudyPage(
+                studyCards = viewModel.studyCardManager.cards,
                 editingLocked = autoSyncCardsModel?.getEditingLocked() ?: remember {
                     mutableStateOf(
                         false
@@ -105,6 +106,9 @@ class CardSliderScaffoldInputFactory {
                 buttons = DefinitionButtonsActions(
                     showRateButtons = showRateButtons,
                     onClickAgain = { page, sliderCard ->
+                        if (viewModel.sliderCardManager.hasExceededForgottenCardLimit()) {
+                            showShortToastLimitForgottenCardsExceeded()
+                        }
                         viewModel.onAgainClick(page, sliderCard)
                         analytics.again(page)
                     },
@@ -122,38 +126,42 @@ class CardSliderScaffoldInputFactory {
                     },
                 ),
                 onClickMenuEditCard = { page ->
-                    viewModel.editMode(page)
+                    viewModel.switchToEditMode(page)
                     analytics.sliderEditCard(page)
                 },
                 onClickMenuNewCard = {
-                    viewModel.addNewCard(it)
+                    viewModel.addNewCardAfter(it)
                     analytics.sliderNewCard(it)
                 },
                 onClickMenuDeleteCard = { page, card ->
                     viewModel.deleteCard(page, card)
-                    showSnackbarDeletedCard(page, card)
+                    showSnackbarDeletedCard()
                     analytics.sliderDeleteCard(page)
                 },
-                onClickMenuResetView = { card -> viewModel.studyCardsModel.resetView(card) },
-            ),
-            editPage = EditPage(editCards = viewModel.editCardsModel.getCardsState(),
+                onClickMenuResetView = { card ->
+                    viewModel.studyCardManager.resetDisplaySettings(card)
+                },
+            ) else null,
+            editPage = EditPage(
+                editCards = viewModel.editCardManager.cards,
                 onClickMenuNewCard = {
-                    viewModel.addNewCard(it)
+                    viewModel.addNewCardAfter(it)
                     analytics.sliderNewCard(it)
                 },
                 onClickMenuDeleteCard = { page, card ->
                     viewModel.deleteCard(page, card)
-                    showSnackbarDeletedCard(page, card)
+                    showSnackbarDeletedCard()
                     analytics.sliderDeleteCard(page)
                 },
                 onClickMenuSaveEditCard = { page, card ->
-                    viewModel.saveCard(page, card)
+                    viewModel.persistCard(card)
                     showShortToastMessage(R.string.card_edit_card_updated_toast)
                     analytics.updateCard(page)
                 }),
-            newPage = NewPage(newCards = viewModel.newCardsModel.getCardsState(),
+            newPage = NewPage(
+                newCards = viewModel.newCardManager.cards,
                 onClickMenuNewCard = {
-                    viewModel.addNewCard(it)
+                    viewModel.addNewCardAfter(it)
                     analytics.sliderNewCard(it)
                 },
                 onClickMenuDeleteCard = { page, card ->
@@ -161,32 +169,39 @@ class CardSliderScaffoldInputFactory {
                     analytics.sliderDeleteNewCard(page)
                 },
                 onClickMenuSaveNewCard = { page, card ->
-                    viewModel.saveNewCard(page, card)
+                    viewModel.persistNewCard(page, card)
                     showShortToastMessage(R.string.card_edit_card_added_toast)
                     analytics.createCard(page)
                 }),
-            setWindowHeightPx = { viewModel.setWindowHeightPx(it) })
+            setWindowHeightPx = { viewModel.updateWindowHeight(it) })
     }
 
-    private fun showSnackbarDeletedCard(page: Int, card: SliderCardUi) {
+    private fun showSnackbarDeletedCard() {
         showSnackbar(
             cardDeletedMessage,
             restoreLabel,
-            { onClickMenuRestoreCard(page, card) },
+            { viewModel.restoreLastDeletedCard() },
             snackbarHostState,
-            scope
+            scope,
+            SnackbarDuration.Short
         )
     }
 
-    private fun onClickMenuRestoreCard(page: Int, card: SliderCardUi) {
-        viewModel.restoreDeletedCard(card)
-        analytics.sliderRestoreCard(page)
+    private fun showShortToastLimitForgottenCardsExceeded() {
+        showShortToastMessage(
+            String.format(
+                application.getString(R.string.card_study_limit_forgotten_cards_exceeded_toast),
+                viewModel.sliderCardManager.getMaxAllowedForgottenCards()
+            )
+        )
     }
 
     private fun showShortToastMessage(@StringRes resId: Int) {
-        Toast.makeText(
-            application, application.getString(resId), Toast.LENGTH_SHORT
-        ).show()
+        showShortToastMessage(application.getString(resId))
+    }
+
+    private fun showShortToastMessage(text: String) {
+        Toast.makeText(application, text, Toast.LENGTH_SHORT).show()
     }
 }
 

@@ -2,13 +2,14 @@ package pl.gocards.ui.cards.slider
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import pl.gocards.App
 import pl.gocards.db.deck.DeckDbUtil
-import pl.gocards.ui.cards.slider.model.SliderCardsViewModel
-import pl.gocards.ui.cards.slider.slider.CardSliderScaffold
-import pl.gocards.ui.cards.slider.slider.CardSliderScaffoldInputFactory
-import pl.gocards.ui.cards.slider.slider.model.Mode
+import pl.gocards.ui.cards.slider.model.CardSliderViewModel
+import pl.gocards.ui.cards.slider.page.card.model.CardMode
+import pl.gocards.ui.cards.slider.view.CardSliderScaffold
+import pl.gocards.ui.cards.slider.view.CardSliderUIMediatorFactory
 import pl.gocards.ui.filesync_pro.AutoSyncViewModel
 import pl.gocards.util.FirebaseAnalyticsHelper
 
@@ -21,7 +22,7 @@ class BrowseCardSliderActivity : ComponentActivity() {
         const val DECK_DB_PATH = "DECK_DB_PATH"
     }
 
-    private var viewModel: SliderCardsViewModel? = null
+    private var viewModel: CardSliderViewModel? = null
 
     private var autoSyncCardsModel: AutoSyncViewModel? = null
 
@@ -32,10 +33,10 @@ class BrowseCardSliderActivity : ComponentActivity() {
         val application = application as App
         val analytics = FirebaseAnalyticsHelper.getInstance(application)
 
-        val viewModel = SliderCardsViewModel.getInstance(
+        val viewModel = CardSliderViewModel.create(
             this,
             deckDbPath,
-            Mode.STUDY,
+            CardMode.STUDY,
             analytics,
             this,
         )
@@ -43,14 +44,14 @@ class BrowseCardSliderActivity : ComponentActivity() {
 
         autoSyncCardsModel = AutoSyncViewModel.getInstance(deckDbPath, owner, application)
 
-        viewModel.loadAllCards()
+        viewModel.fetchAllCards()
         autoSyncCardsModel?.autoSync {
-            viewModel.loadAllCards()
+            viewModel.fetchAllCards()
         }
 
         setContent {
             CardSliderScaffold(
-                CardSliderScaffoldInputFactory().getInstance(
+                CardSliderUIMediatorFactory().getInstance(
                     onBack = { super.finish() },
                     deckName = DeckDbUtil.getDeckName(deckDbPath),
                     viewModel = viewModel,
@@ -62,11 +63,15 @@ class BrowseCardSliderActivity : ComponentActivity() {
                 )
             )
         }
+
+        this.onBackPressedDispatcher.addCallback(this) {
+            if (!viewModel.handleOnBackPressed()) super.finish()
+        }
     }
 
     override fun onStop() {
         super.onStop()
-        viewModel?.saveCard()
+        viewModel?.onCardPause()
         autoSyncCardsModel?.autoSync()
     }
 }

@@ -1,4 +1,4 @@
-package pl.gocards.ui.cards.slider.slider
+package pl.gocards.ui.cards.slider.view
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.basicMarquee
@@ -24,14 +24,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pl.gocards.R
+import pl.gocards.dynamic_pager.DynamicPagerStateBinder
 import pl.gocards.ui.cards.slider.page.edit.testEditCardUi
 import pl.gocards.ui.cards.slider.page.study.NoMoreCardsToRepeatDialog
 import pl.gocards.ui.cards.slider.page.study.StudyCardLayoutParams
 import pl.gocards.ui.cards.slider.page.study.testStudyCardUi
-import pl.gocards.ui.cards.slider.slider.model.Mode
-import pl.gocards.ui.cards.slider.slider.model.SliderCardUi
-import pl.gocards.ui.common.pager.dynamic.DynamicPagerDto
-import pl.gocards.ui.common.pager.dynamic.DynamicPagerWrapper
+import pl.gocards.dynamic_pager.DynamicPagerUIMediator
+import pl.gocards.ui.cards.slider.page.card.model.CardMode
+import pl.gocards.ui.cards.slider.page.card.model.SliderCardUi
 import pl.gocards.ui.theme.AppBar
 import pl.gocards.ui.theme.AppTheme
 import pl.gocards.ui.theme.Blue800
@@ -43,18 +43,21 @@ import pl.gocards.ui.theme.ExtendedTheme
 @SuppressLint("MutableCollectionMutableState")
 fun PreviewKtCardSliderActivity() {
     val testEditCardUi = testEditCardUi()
-    val sliderCards = mutableListOf(SliderCardUi(id = 1, mode = remember { mutableStateOf(Mode.EDIT) }))
+    val sliderCards = mutableListOf(SliderCardUi(id = 1, cardMode = remember { mutableStateOf(CardMode.EDIT) }))
 
     CardSliderScaffold(
-        input = CardSliderScaffoldInput(
+        input = CardSliderUIMediator(
             isDarkTheme = false,
             preview = true,
             deckName = "Sample deck",
             sliderCards =  sliderCards,
             loaded = true,
-            dynamicPager = DynamicPagerDto(
+            dynamicPager = DynamicPagerUIMediator(
                 settledPage = remember { mutableIntStateOf(0) },
-                items = remember { mutableStateOf(sliderCards) }
+                items = remember { mutableStateOf(sliderCards) },
+                setSettledPage = {},
+                clearFocusPage = {},
+                clearScrollToPage = {}
             ),
             studyPage = StudyPage(
                 studyCards = remember { mutableStateOf(mapOf(1 to testStudyCardUi)) },
@@ -75,7 +78,7 @@ fun PreviewKtCardSliderActivity() {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CardSliderScaffold(input: CardSliderScaffoldInput) {
+fun CardSliderScaffold(input: CardSliderUIMediator) {
     AppTheme(isDarkTheme = input.isDarkTheme, preview = input.preview) {
         if (input.dynamicPager.getSize() > 0) {
             val currentPage = input.dynamicPager.settledPage.value ?: 0
@@ -88,7 +91,7 @@ fun CardSliderScaffold(input: CardSliderScaffoldInput) {
                     }
             }
 
-            DynamicPagerWrapper(input.dynamicPager) { pagerState ->
+            DynamicPagerStateBinder(input.dynamicPager) { pagerState ->
                 Scaffold(
                     topBar = {
                         AppBar(
@@ -118,16 +121,17 @@ fun CardSliderScaffold(input: CardSliderScaffoldInput) {
                         CardSliderPager(
                             pagerState = pagerState,
                             sliderCards = input.sliderCards,
-                            studyCards = input.studyPage.studyCards,
+                            studyCards = input.studyPage?.studyCards,
                             newCards = input.newPage.newCards,
                             editCards = input.editPage.editCards,
-                            definitionButtonsActions = input.studyPage.buttons,
+                            definitionButtonsActions = input.studyPage?.buttons,
                             studyCardLayoutParams = studyCardLayoutParams,
                             innerPadding = innerPadding,
+                            darkMode = input.isDarkTheme,
                             userScrollEnabled = input.dynamicPager.userScrollEnabled
                         )
 
-                        if (input.studyPage.editingLocked.value) {
+                        if (input.studyPage?.editingLocked?.value == true) {
                             EditingLocked(Modifier.padding(innerPadding))
                         }
                     }
@@ -147,16 +151,16 @@ private fun AppBarTitle(
     deckName: String,
     sliderCard: SliderCardUi
 ) {
-    val mode = sliderCard.mode.value
+    val mode = sliderCard.cardMode.value
     when (mode) {
-        Mode.NEW -> {
+        CardMode.NEW -> {
             Text(
                 text = stringResource(R.string.card_new_title),
                 maxLines = 1,
                 modifier = Modifier.basicMarquee()
             )
         }
-        Mode.EDIT -> {
+        CardMode.EDIT -> {
             Text(
                 text = stringResource(R.string.card_edit_title),
                 maxLines = 1,

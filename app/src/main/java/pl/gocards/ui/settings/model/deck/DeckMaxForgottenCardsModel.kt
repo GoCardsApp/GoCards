@@ -24,13 +24,13 @@ class DeckMaxForgottenCardsModel(
 
     lateinit var appMaxForgottenCards: MaxForgottenCardsModel
 
-    val maxForgottenCards: MutableLiveData<String> = MutableLiveData(DeckConfig.MAX_FORGOTTEN_CARDS_DEFAULT.toString())
-    private var maxForgottenCardsDb: Int = DeckConfig.MAX_FORGOTTEN_CARDS_DEFAULT
+    val maxForgottenCards: MutableLiveData<String> = MutableLiveData(DeckConfig.MAX_ALLOWED_FORGOTTEN_CARDS_DEFAULT.toString())
+    private var maxForgottenCardsDb: Int = DeckConfig.MAX_ALLOWED_FORGOTTEN_CARDS_DEFAULT
 
     @SuppressLint("CheckResult")
     fun init() {
         viewModelScope.launch(Dispatchers.IO) {
-            val deckConfig = deckDb.deckConfigKtxDao().getByKey(DeckConfig.MAX_FORGOTTEN_CARDS)
+            val deckConfig = deckDb.deckConfigKtxDao().getByKey(DeckConfig.MAX_ALLOWED_FORGOTTEN_CARDS)
             if (deckConfig == null) {
                 initApp()
             } else {
@@ -43,7 +43,7 @@ class DeckMaxForgottenCardsModel(
     @SuppressLint("CheckResult")
     private fun initApp() {
         viewModelScope.launch(Dispatchers.IO) {
-            val appConfig = appDb.appConfigKtxDao().getByKey(DeckConfig.MAX_FORGOTTEN_CARDS)
+            val appConfig = appDb.appConfigKtxDao().getByKey(DeckConfig.MAX_ALLOWED_FORGOTTEN_CARDS)
             if (appConfig == null) {
                 initDefault()
             } else {
@@ -54,8 +54,8 @@ class DeckMaxForgottenCardsModel(
     }
 
     private fun initDefault() {
-        set(DeckConfig.MAX_FORGOTTEN_CARDS_DEFAULT)
-        maxForgottenCardsDb = DeckConfig.MAX_FORGOTTEN_CARDS_DEFAULT
+        set(DeckConfig.MAX_ALLOWED_FORGOTTEN_CARDS_DEFAULT)
+        maxForgottenCardsDb = DeckConfig.MAX_ALLOWED_FORGOTTEN_CARDS_DEFAULT
     }
 
     fun set(newValue: Any) {
@@ -72,7 +72,7 @@ class DeckMaxForgottenCardsModel(
                 viewModelScope.launch(Dispatchers.IO) {
                     maxForgottenCardsDb = it.toInt()
                     deckDb.deckConfigKtxDao().update(
-                        DeckConfig.MAX_FORGOTTEN_CARDS,
+                        DeckConfig.MAX_ALLOWED_FORGOTTEN_CARDS,
                         it,
                         appMaxForgottenCards.appMaxForgottenCardsDb.toString()
                     )

@@ -146,6 +146,7 @@
 
     <string name="card_study_menu_reset_view">Reset view</string>
     <string name="card_study_no_more_cards_repeat">No more cards to repeat</string>
+    <string name="card_study_limit_forgotten_cards_exceeded_toast">Forgotten %d card limit reached. Back to the first card.</string>
 
     <string name="card_new_title">Add a new card</string>
     <string name="card_new_term_label">Term:</string>

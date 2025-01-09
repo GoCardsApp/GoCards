@@ -1,4 +1,4 @@
-package pl.gocards.ui.cards.slider.slider
+package pl.gocards.ui.cards.slider.page.card
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import pl.gocards.ui.cards.slider.view.pagerDepthTransition
 import pl.gocards.ui.theme.ExtendedTheme
 
 @Composable

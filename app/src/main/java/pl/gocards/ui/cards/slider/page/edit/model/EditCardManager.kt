@@ -15,31 +15,26 @@ import pl.gocards.room.util.TimeUtil
  * C_C_24 Edit the card
  * @author Grzegorz Ziemski
  */
-class EditCardsModel(
+class EditCardManager(
     val deckDb: DeckDatabase,
     val appDb: AppDatabase,
     val deckDbPath: String,
     application: Application
 ): AndroidViewModel(application) {
 
-    private val cards = mutableStateOf(mapOf<Int, EditCardUi>())
-    private var _cards: MutableMap<Int, EditCardUi> = mutableMapOf()
+    private var _cardsInternal: MutableMap<Int, EditCardUi> = mutableMapOf()
+    private val _cards = mutableStateOf(mapOf<Int, EditCardUi>())
+    val cards: State<Map<Int, EditCardUi>> get() = _cards
 
-    suspend fun loadCard(id: Int?) {
-        if (id == null) {
-            return
-        } else if (_cards[id] != null) {
-            return
-        } else {
-            reloadCard(id)
+    suspend fun fetchCardIfNeeded(id: Int) {
+        if (!_cardsInternal.containsKey(id)) {
+            fetchCard(id)
         }
     }
 
-    suspend fun reloadCard(id: Int) {
+    private suspend fun fetchCard(id: Int) {
         val cardDb = deckDb.cardKtxDao().getCard(id)!!
-        val card = mapCard(cardDb)
-        _cards[id] = card
-        this.cards.value = _cards.toMutableMap()
+        cacheCard(mapCard(cardDb))
     }
 
     private suspend fun mapCard(card: Card): EditCardUi {
@@ -55,16 +50,18 @@ class EditCardsModel(
         )
     }
 
-    suspend fun saveCard(editCard: EditCardUi) {
+    suspend fun persistCard(editCard: EditCardUi) {
         val updatedAt = TimeUtil.getNowEpochSec()
-        val card = mapCard(editCard)
-        card.updatedAt = updatedAt
+
+        val card = toCard(editCard).apply {
+            this.updatedAt = updatedAt
+        }
 
         deckDb.cardKtxDao().updateAll(card)
         appDb.deckKtxDao().refreshLastUpdatedAt(deckDbPath, updatedAt)
     }
 
-    private suspend fun mapCard(editCard: EditCardUi): Card {
+    private suspend fun toCard(editCard: EditCardUi): Card {
         val card = deckDb.cardKtxDao().getCard(editCard.id)!!
         card.term = editCard.term.value
         card.definition = editCard.definition.value
@@ -73,12 +70,13 @@ class EditCardsModel(
         return card
     }
 
-    fun getCardsState(): State<Map<Int, EditCardUi>> {
-        return cards
+    private fun cacheCard(card: EditCardUi) {
+        _cardsInternal[card.id] = card
+        _cards.value = _cardsInternal.toMap()
     }
 }
 
-class EditCardsModelFactory(
+class EditCardsManagerFactory(
     val deckDb: DeckDatabase,
     val appDb: AppDatabase,
     val deckDbPath: String,
@@ -87,10 +85,11 @@ class EditCardsModelFactory(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return if (modelClass.isAssignableFrom(EditCardsModel::class.java)) {
-            EditCardsModel(deckDb, appDb, deckDbPath, application) as T
-        } else {
-            throw IllegalArgumentException("ViewModel Not Found")
+        return when {
+            modelClass.isAssignableFrom(EditCardManager::class.java) -> {
+                EditCardManager(deckDb, appDb, deckDbPath, application) as T
+            }
+            else -> throw IllegalArgumentException("ViewModel Not Found: ${modelClass.name}")
         }
     }
 }

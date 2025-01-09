@@ -12,7 +12,8 @@ fun showSnackbar(
     @SuppressWarnings("unused")
     onAction: () -> Unit,
     snackbarHostState: SnackbarHostState,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    duration: SnackbarDuration
 ) {
     scope.launch {
         showSnackbar(
@@ -20,6 +21,7 @@ fun showSnackbar(
             actionLabel,
             onAction,
             snackbarHostState,
+            duration
         )
     }
 }
@@ -30,11 +32,12 @@ suspend fun showSnackbar(
     @SuppressWarnings("unused")
     onAction: () -> Unit,
     snackbarHostState: SnackbarHostState,
+    duration: SnackbarDuration
 ) {
     val result = snackbarHostState.showSnackbar(
         message,
         actionLabel,
-        duration = SnackbarDuration.Long
+        duration = duration
     )
 
     when (result) {

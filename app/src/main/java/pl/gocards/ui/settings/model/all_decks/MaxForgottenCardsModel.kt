@@ -22,13 +22,13 @@ class MaxForgottenCardsModel(
 
     var deckMaxForgottenCards: DeckMaxForgottenCardsModel? = null
 
-    val maxForgottenCards: MutableLiveData<String> = MutableLiveData(DeckConfig.MAX_FORGOTTEN_CARDS_DEFAULT.toString())
-    var appMaxForgottenCardsDb: Int = DeckConfig.MAX_FORGOTTEN_CARDS_DEFAULT
+    val maxForgottenCards: MutableLiveData<String> = MutableLiveData(DeckConfig.MAX_ALLOWED_FORGOTTEN_CARDS_DEFAULT.toString())
+    var appMaxForgottenCardsDb: Int = DeckConfig.MAX_ALLOWED_FORGOTTEN_CARDS_DEFAULT
 
     @SuppressLint("CheckResult")
     fun init() {
         viewModelScope.launch(Dispatchers.IO) {
-            val appConfig = appDb.appConfigKtxDao().getByKey(DeckConfig.MAX_FORGOTTEN_CARDS)
+            val appConfig = appDb.appConfigKtxDao().getByKey(DeckConfig.MAX_ALLOWED_FORGOTTEN_CARDS)
             if (appConfig != null) {
                 set(appConfig.value)
                 appMaxForgottenCardsDb = appConfig.value.toInt()
@@ -51,9 +51,9 @@ class MaxForgottenCardsModel(
                 viewModelScope.launch(Dispatchers.IO) {
                     appMaxForgottenCardsDb = it.toInt()
                     appDb.appConfigKtxDao().update(
-                        DeckConfig.MAX_FORGOTTEN_CARDS,
+                        DeckConfig.MAX_ALLOWED_FORGOTTEN_CARDS,
                         it,
-                        DeckConfig.MAX_FORGOTTEN_CARDS_DEFAULT.toString()
+                        DeckConfig.MAX_ALLOWED_FORGOTTEN_CARDS_DEFAULT.toString()
                     )
                     deckMaxForgottenCards?.init()
                 }

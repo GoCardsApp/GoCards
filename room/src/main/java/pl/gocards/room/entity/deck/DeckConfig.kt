@@ -20,8 +20,8 @@ data class DeckConfig(
         const val STUDY_CARD_FONT_SIZE_DEFAULT = 24
         const val STUDY_CARD_FONT_SIZE_MIN = 10
         const val STUDY_CARD_FONT_SIZE_MAX = 50
-        const val MAX_FORGOTTEN_CARDS = "StudyCard_MaxForgottenCards"
-        const val MAX_FORGOTTEN_CARDS_DEFAULT = 5
+        const val MAX_ALLOWED_FORGOTTEN_CARDS = "StudyCard_MaxForgottenCards"
+        const val MAX_ALLOWED_FORGOTTEN_CARDS_DEFAULT = 5
         const val MAX_LINES = "ListCards_MaxLines"
         const val MAX_LINES_DEFAULT = 4
     }

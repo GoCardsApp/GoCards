@@ -9,10 +9,10 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import pl.gocards.App
 import pl.gocards.db.deck.DeckDbUtil
-import pl.gocards.ui.cards.slider.model.SliderCardsViewModel
-import pl.gocards.ui.cards.slider.slider.CardSliderScaffold
-import pl.gocards.ui.cards.slider.slider.CardSliderScaffoldInputFactory
-import pl.gocards.ui.cards.slider.slider.model.Mode
+import pl.gocards.ui.cards.slider.model.CardSliderViewModel
+import pl.gocards.ui.cards.slider.page.card.model.CardMode
+import pl.gocards.ui.cards.slider.view.CardSliderScaffold
+import pl.gocards.ui.cards.slider.view.CardSliderUIMediatorFactory
 import pl.gocards.ui.filesync_pro.AutoSyncViewModel
 import pl.gocards.util.FirebaseAnalyticsHelper
 
@@ -31,7 +31,7 @@ class StudyCardSliderActivity : ComponentActivity() {
 
     private var autoSyncCardsModel: AutoSyncViewModel? = null
 
-    private var viewModel: SliderCardsViewModel? = null
+    private var viewModel: CardSliderViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,10 +41,10 @@ class StudyCardSliderActivity : ComponentActivity() {
         val application = application as App
         val analytics = FirebaseAnalyticsHelper.getInstance(application)
 
-        val viewModel = SliderCardsViewModel.getInstance(
+        val viewModel = CardSliderViewModel.create(
             context,
             deckDbPath,
-            Mode.STUDY,
+            CardMode.STUDY,
             analytics,
             this
         )
@@ -53,20 +53,20 @@ class StudyCardSliderActivity : ComponentActivity() {
         autoSyncCardsModel = AutoSyncViewModel.getInstance(deckDbPath, owner, application)
 
         autoSyncCardsModel?.autoSync {
-            viewModel.loadForgottenCards()
+            viewModel.fetchForgottenCards()
         }
 
         setContent {
             LaunchedEffect(true) {
-                if (!viewModel.isNotEmpty()) {
-                    viewModel.loadForgottenCards()
+                if (!viewModel.hasCards()) {
+                    viewModel.fetchForgottenCards()
                 } else {
-                    viewModel.refreshSettledPage()
+                    viewModel.resetSettledPage()
                 }
             }
 
             CardSliderScaffold(
-                CardSliderScaffoldInputFactory().getInstance(
+                CardSliderUIMediatorFactory().getInstance(
                     onBack = { super.finish() },
                     deckName = DeckDbUtil.getDeckName(deckDbPath),
                     viewModel = viewModel,
@@ -91,7 +91,7 @@ class StudyCardSliderActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        viewModel?.saveCard()
+        viewModel?.onCardPause()
         autoSyncCardsModel?.autoSync()
     }
 }

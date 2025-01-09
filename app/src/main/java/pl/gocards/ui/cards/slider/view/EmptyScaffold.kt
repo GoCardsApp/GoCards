@@ -1,4 +1,4 @@
-package pl.gocards.ui.cards.slider.slider
+package pl.gocards.ui.cards.slider.view
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.basicMarquee

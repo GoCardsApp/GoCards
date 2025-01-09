@@ -1,11 +1,11 @@
-package pl.gocards.ui.cards.slider.slider
+package pl.gocards.ui.cards.slider.view
 
 import androidx.compose.runtime.Composable
 import pl.gocards.ui.cards.slider.page.add.NewCardPageMenu
+import pl.gocards.ui.cards.slider.page.card.model.CardMode
+import pl.gocards.ui.cards.slider.page.card.model.SliderCardUi
 import pl.gocards.ui.cards.slider.page.edit.EditCardPageMenu
 import pl.gocards.ui.cards.slider.page.study.StudyCardPageMenu
-import pl.gocards.ui.cards.slider.slider.model.Mode
-import pl.gocards.ui.cards.slider.slider.model.SliderCardUi
 
 /**
  * @author Grzegorz Ziemski
@@ -15,15 +15,15 @@ fun CardSliderMenu(
     page: Int,
     sliderCards: List<SliderCardUi>,
 
-    studyPage: StudyPage,
+    studyPage: StudyPage?,
     editPage: EditPage,
     newPage: NewPage,
 ) {
     if (sliderCards.size <= page) return
     val sliderCard = sliderCards[page]
 
-    val mode = sliderCard.mode.value
-    if (mode == Mode.STUDY) {
+    val mode = sliderCard.cardMode.value
+    if (mode == CardMode.STUDY && studyPage != null) {
         val studyCard = studyPage.studyCards.value[sliderCard.id]
         if (studyCard != null) {
             StudyCardPageMenu(
@@ -34,7 +34,7 @@ fun CardSliderMenu(
                 { studyPage.onClickMenuResetView(studyCard) },
             )
         }
-    } else if (mode == Mode.NEW) {
+    } else if (mode == CardMode.NEW) {
         val newCard = newPage.newCards.value[sliderCard.id]
         if (newCard != null) {
             NewCardPageMenu(
@@ -43,7 +43,7 @@ fun CardSliderMenu(
                 { newPage.onClickMenuNewCard(page) },
             )
         }
-    } else if (mode == Mode.EDIT) {
+    } else if (mode == CardMode.EDIT) {
         val editCard = editPage.editCards.value[sliderCard.id]
         if (editCard != null) {
             EditCardPageMenu(

@@ -34,20 +34,15 @@ data class StudyCardUi(
     val isDefinitionSimpleHtml: Boolean = false,
     val isDefinitionFullHtml: Boolean = false,
 
-    /**
-     * Used when card does not have display settings yet.
-     * The card will be opened for the first time ever.
-     *
-     * If true, it means that the card can be setup with the last default settings.
-     * This makes the cards look nice when placed behind the main card when swiping the cards on the pager.
-     *
-     * If false, it means the card already has display settings defined.
-     */
-    var canPreSetup: Boolean = true,
+    var wasDisplayed: Boolean = false,
 
     val termFontSize: MutableState<TextUnit?> = mutableStateOf(null), //24.sp
 
+    val termFontSizeSaved: TextUnit? = null,
+
     val defFontSize: MutableState<TextUnit?> = mutableStateOf(null),  //24.sp
+
+    val defFontSizeSaved: TextUnit? = null,
 
     val displayRatio: Float = 0.5f,
 

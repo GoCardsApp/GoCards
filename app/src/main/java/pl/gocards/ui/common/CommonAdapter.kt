@@ -4,6 +4,7 @@ import android.app.Activity
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.annotation.UiThread
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.recyclerview.widget.RecyclerView
 
@@ -34,7 +35,8 @@ abstract class CommonAdapter<VH : RecyclerView.ViewHolder>(
             activity.getString(message),
             activity.getString(button),
             onAction,
-            snackbarHostState
+            snackbarHostState,
+            SnackbarDuration.Long
         )
     }
 }

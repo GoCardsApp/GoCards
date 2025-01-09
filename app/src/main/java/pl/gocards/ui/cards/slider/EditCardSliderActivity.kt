@@ -2,14 +2,15 @@ package pl.gocards.ui.cards.slider
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.LaunchedEffect
 import pl.gocards.App
 import pl.gocards.db.deck.DeckDbUtil
-import pl.gocards.ui.cards.slider.model.SliderCardsViewModel
-import pl.gocards.ui.cards.slider.slider.CardSliderScaffold
-import pl.gocards.ui.cards.slider.slider.CardSliderScaffoldInputFactory
-import pl.gocards.ui.cards.slider.slider.model.Mode
+import pl.gocards.ui.cards.slider.model.CardSliderViewModel
+import pl.gocards.ui.cards.slider.page.card.model.CardMode
+import pl.gocards.ui.cards.slider.view.CardSliderScaffold
+import pl.gocards.ui.cards.slider.view.CardSliderUIMediatorFactory
 import pl.gocards.util.FirebaseAnalyticsHelper
 
 /**
@@ -35,10 +36,10 @@ class EditCardSliderActivity : ComponentActivity() {
 
         val application = application as App
         val analytics = FirebaseAnalyticsHelper.getInstance(application)
-        val viewModel = SliderCardsViewModel.getInstance(
+        val viewModel = CardSliderViewModel.create(
             this,
             deckDbPath,
-            Mode.EDIT,
+            CardMode.EDIT,
             analytics,
             this
         )
@@ -47,22 +48,22 @@ class EditCardSliderActivity : ComponentActivity() {
         setContent {
 
             LaunchedEffect(true) {
-                if (!viewModel.isNotEmpty()) {
+                if (!viewModel.hasCards()) {
                     if (addNewCard) {
-                        viewModel.loadAllCardsAndAddNewCard()
+                        viewModel.fetchAllCardsAndAppendNew()
                     } else if (newCardAfterCardId != 0) {
-                        viewModel.loadAllCardsAndAddNewCard(newCardAfterCardId)
+                        viewModel.fetchAllCardsAndInsertAfter(newCardAfterCardId)
                     } else if (editCardId != 0) {
-                        viewModel.loadAllCardsAndSetCardId(editCardId)
+                        viewModel.fetchAllCardsAndFocusOnCard(editCardId)
                     } else {
-                        viewModel.loadAllCards()
+                        viewModel.fetchAllCards()
                     }
                 }
             }
 
 
             CardSliderScaffold(
-                CardSliderScaffoldInputFactory().getInstance(
+                CardSliderUIMediatorFactory().getInstance(
                     onBack = { super.finish() },
                     deckName = DeckDbUtil.getDeckName(deckDbPath),
                     viewModel = viewModel,
@@ -73,6 +74,10 @@ class EditCardSliderActivity : ComponentActivity() {
                     application = application
                 )
             )
+        }
+
+        this.onBackPressedDispatcher.addCallback(this) {
+            if (!viewModel.handleOnBackPressed()) super.finish()
         }
     }
 }

@@ -26,8 +26,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import pl.gocards.R
 import pl.gocards.room.entity.deck.CardLearningProgressAndHistory
+import pl.gocards.ui.cards.slider.page.card.model.SliderCardUi
 import pl.gocards.ui.cards.slider.page.study.model.StudyCardUi
-import pl.gocards.ui.cards.slider.slider.model.SliderCardUi
 import pl.gocards.ui.theme.Blue800
 import pl.gocards.ui.theme.Green700
 import pl.gocards.ui.theme.Orange800

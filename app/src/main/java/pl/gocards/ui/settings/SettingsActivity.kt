@@ -82,10 +82,10 @@ fun PreviewSettings() {
             fileNameDb = remember { mutableStateOf("Example File Name") },
         ),
         Deck_LimitForgottenCardsDialog_Entity = LimitForgottenCardsDialogEntity(
-            maxForgottenCards = remember { mutableStateOf(DeckConfig.MAX_FORGOTTEN_CARDS_DEFAULT.toString()) },
+            maxForgottenCards = remember { mutableStateOf(DeckConfig.MAX_ALLOWED_FORGOTTEN_CARDS_DEFAULT.toString()) },
         ),
         App_LimitForgottenCardsDialog_Entity = LimitForgottenCardsDialogEntity(
-            maxForgottenCards = remember { mutableStateOf(DeckConfig.MAX_FORGOTTEN_CARDS_DEFAULT.toString()) },
+            maxForgottenCards = remember { mutableStateOf(DeckConfig.MAX_ALLOWED_FORGOTTEN_CARDS_DEFAULT.toString()) },
         ),
         Deck_MaxLinesDialog_Entity = MaxLinesDialogEntity(
             maxLines = remember { mutableStateOf(DeckConfig.MAX_LINES_DEFAULT.toString()) },

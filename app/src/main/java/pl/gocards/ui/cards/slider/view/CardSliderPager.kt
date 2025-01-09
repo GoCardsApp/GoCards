@@ -1,4 +1,4 @@
-package pl.gocards.ui.cards.slider.slider
+package pl.gocards.ui.cards.slider.view
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -16,14 +16,14 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import pl.gocards.ui.cards.slider.page.add.NewCardPage
+import pl.gocards.ui.cards.slider.page.card.model.CardMode
+import pl.gocards.ui.cards.slider.page.card.model.SliderCardUi
 import pl.gocards.ui.cards.slider.page.edit.EditCardPage
 import pl.gocards.ui.cards.slider.page.edit.model.EditCardUi
 import pl.gocards.ui.cards.slider.page.study.StudyCardLayoutParams
 import pl.gocards.ui.cards.slider.page.study.StudyCardPage
 import pl.gocards.ui.cards.slider.page.study.model.StudyCardUi
 import pl.gocards.ui.cards.slider.page.study.ui.definition.DefinitionButtonsActions
-import pl.gocards.ui.cards.slider.slider.model.Mode
-import pl.gocards.ui.cards.slider.slider.model.SliderCardUi
 
 /**
  * @author Grzegorz Ziemski
@@ -32,10 +32,10 @@ import pl.gocards.ui.cards.slider.slider.model.SliderCardUi
 fun CardSliderPager(
     pagerState: PagerState,
     sliderCards: List<SliderCardUi>,
-    studyCards: State<Map<Int, StudyCardUi>>,
+    studyCards: State<Map<Int, StudyCardUi>>?,
     newCards: State<Map<Int, EditCardUi>>,
     editCards: State<Map<Int, EditCardUi>>,
-    definitionButtonsActions: DefinitionButtonsActions,
+    definitionButtonsActions: DefinitionButtonsActions?,
     studyCardLayoutParams: MutableState<StudyCardLayoutParams>,
     innerPadding: PaddingValues,
     userScrollEnabled: MutableState<Boolean>
@@ -51,9 +51,9 @@ fun CardSliderPager(
         if (page >= sliderCards.size) return@HorizontalPager
         val sliderCard = sliderCards[page]
         val id = sliderCard.id
-        val mode = sliderCard.mode.value
+        val mode = sliderCard.cardMode.value
 
-        if (mode == Mode.STUDY) {
+        if (mode == CardMode.STUDY && studyCards != null && definitionButtonsActions != null) {
             val studyCard = studyCards.value[id]
             if (studyCard != null) {
                 StudyCardPage(
@@ -67,9 +67,9 @@ fun CardSliderPager(
                     definitionButtonsActions = definitionButtonsActions
                 )
             } else {
-                ErrorMessage("StudyCard could not be found.", innerPadding)
+                ErrorMessage("StudyCard not found", innerPadding)
             }
-        } else if (mode == Mode.NEW) {
+        } else if (mode == CardMode.NEW) {
             val newCard = newCards.value[id]
             if (newCard != null) {
                 NewCardPage(
@@ -79,9 +79,9 @@ fun CardSliderPager(
                     innerPadding = innerPadding
                 )
             } else {
-                ErrorMessage("NewCard could not be found.", innerPadding)
+                ErrorMessage("NewCard not found", innerPadding)
             }
-        } else if (mode == Mode.EDIT) {
+        } else if (mode == CardMode.EDIT) {
             val editCard = editCards.value[id]
             if (editCard != null) {
                 EditCardPage(
@@ -91,17 +91,19 @@ fun CardSliderPager(
                     innerPadding = innerPadding
                 )
             } else {
-                ErrorMessage("EditCard could not be found.", innerPadding)
+                ErrorMessage("EditCard not found", innerPadding)
             }
         } else {
-            ErrorMessage("The card mode not recognized.", innerPadding)
+            ErrorMessage("Card mode not recognized.", innerPadding)
         }
     }
 }
 
 @Composable
 private fun ErrorMessage(text: String, innerPadding: PaddingValues) {
-    Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+    Box(modifier = Modifier
+        .padding(innerPadding)
+        .fillMaxSize()) {
         Text(text, Modifier.align(Alignment.Center))
     }
 }

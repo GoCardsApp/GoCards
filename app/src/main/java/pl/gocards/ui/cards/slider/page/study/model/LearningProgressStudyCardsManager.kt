@@ -7,26 +7,27 @@ import pl.gocards.room.entity.deck.CardLearningHistory
 import pl.gocards.room.entity.deck.CardLearningProgress
 import pl.gocards.room.entity.deck.CardLearningProgressAndHistory
 import pl.gocards.room.util.TimeUtil
+import pl.gocards.ui.cards.slider.page.card.model.SliderCardUi
 import pl.gocards.util.CardReplayScheduler
 
 /**
  * C_R_30 Study the cards
  * @author Grzegorz Ziemski
  */
-open class LearningProgressModel(
+abstract class LearningProgressStudyCardsManager(
     deckDb: DeckDatabase,
     appDb: AppDatabase,
     deckDbPath: String
-) : DisplaySettingsStudyCardsModel(deckDb, appDb, deckDbPath) {
+) : DisplaySettingsStudyCardsManager(deckDb, appDb, deckDbPath) {
 
     private val cardReplayScheduler = CardReplayScheduler()
 
     @SuppressLint("CheckResult")
-    protected suspend fun getCurrent(cardId: Int): CardLearningProgressAndHistory? {
+    suspend fun getCurrent(cardId: Int): CardLearningProgressAndHistory? {
         return deckDb.cardLearningProgressAndHistoryKtxDao().findCurrentByCardId(cardId)
     }
 
-    protected suspend fun getNextAfterAgain(cardId: Int): CardLearningProgressAndHistory {
+    suspend fun getNextAfterAgain(cardId: Int): CardLearningProgressAndHistory {
         val current = deckDb.cardLearningProgressAndHistoryKtxDao().findCurrentByCardId(cardId)
         return if (current == null) {
             cardReplayScheduler.scheduleFirstAgainReplay(cardId)
@@ -35,7 +36,7 @@ open class LearningProgressModel(
         }
     }
 
-    protected suspend fun getNextAfterQuick(cardId: Int): CardLearningProgressAndHistory? {
+    suspend fun getNextAfterQuick(cardId: Int): CardLearningProgressAndHistory? {
         val current = deckDb.cardLearningProgressAndHistoryKtxDao().findCurrentByCardId(cardId)
         return if (current == null) {
             cardReplayScheduler.scheduleNextQuickReplay(cardId)
@@ -44,7 +45,7 @@ open class LearningProgressModel(
         }
     }
 
-    protected suspend fun getNextAfterEasy(cardId: Int): CardLearningProgressAndHistory {
+    suspend fun getNextAfterEasy(cardId: Int): CardLearningProgressAndHistory {
         val current = deckDb.cardLearningProgressAndHistoryKtxDao().findCurrentByCardId(cardId)
         return if (current == null) {
             cardReplayScheduler.scheduleFirstEasyReplay(cardId)
@@ -53,7 +54,7 @@ open class LearningProgressModel(
         }
     }
 
-    protected suspend fun getNextAfterHard(cardId: Int): CardLearningProgressAndHistory {
+    suspend fun getNextAfterHard(cardId: Int): CardLearningProgressAndHistory {
         val current = deckDb.cardLearningProgressAndHistoryKtxDao().findCurrentByCardId(cardId)
         return if (current == null) {
             cardReplayScheduler.scheduleFirstHardReplay(cardId)
@@ -81,7 +82,20 @@ open class LearningProgressModel(
     /**
      * C_U_32 Again
      */
-    suspend fun onAgainClick(card: StudyCardUi) {
+    suspend fun onAgainClick(sliderCard: SliderCardUi) {
+        val cardId = sliderCard.id
+        val studyCard = cards.value[cardId] ?: return
+
+        onAgainClick(studyCard)
+        saveDisplaySettings(cardId)
+        refreshCard(cardId)
+        hideDefinition(cardId)
+    }
+
+    /**
+     * C_U_32 Again
+     */
+    private suspend fun onAgainClick(card: StudyCardUi) {
         val now = TimeUtil.getNowEpochSec()
         val next = card.nextAfterAgain
         val current = card.current
@@ -96,7 +110,15 @@ open class LearningProgressModel(
     /**
      * C_U_33 Quick Repetition (5 min)
      */
-    suspend fun onQuickClick(card: StudyCardUi) {
+    suspend fun onQuickClick(sliderCard: SliderCardUi) {
+        val studyCard = cards.value[sliderCard.id] ?: return
+        onQuickClick(studyCard)
+    }
+
+    /**
+     * C_U_33 Quick Repetition (5 min)
+     */
+    private suspend fun onQuickClick(card: StudyCardUi) {
         val now = TimeUtil.getNowEpochSec()
         val next = card.nextAfterQuick ?: return
         return updateLearningProgress(null, next, now)
@@ -105,7 +127,15 @@ open class LearningProgressModel(
     /**
      * C_U_35 Easy (5 days)
      */
-    suspend fun onEasyClick(card: StudyCardUi) {
+    suspend fun onEasyClick(sliderCard: SliderCardUi) {
+        val studyCard = cards.value[sliderCard.id] ?: return
+        onEasyClick(studyCard)
+    }
+
+    /**
+     * C_U_35 Easy (5 days)
+     */
+    private suspend fun onEasyClick(card: StudyCardUi) {
         val now = TimeUtil.getNowEpochSec()
         val next = card.nextAfterEasy
         val current = card.current
@@ -120,7 +150,15 @@ open class LearningProgressModel(
     /**
      * C_U_34 Hard (3 days)
      */
-    suspend fun onHardClick(card: StudyCardUi) {
+    suspend fun onHardClick(sliderCard: SliderCardUi) {
+        val studyCard = cards.value[sliderCard.id] ?: return
+        onHardClick(studyCard)
+    }
+
+    /**
+     * C_U_34 Hard (3 days)
+     */
+    private suspend fun onHardClick(card: StudyCardUi) {
         val now = TimeUtil.getNowEpochSec()
         val next = card.nextAfterHard
         val current = card.current

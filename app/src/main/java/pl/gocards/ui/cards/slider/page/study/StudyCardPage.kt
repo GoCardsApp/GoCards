@@ -25,15 +25,15 @@ import pl.gocards.R
 import pl.gocards.room.entity.deck.CardLearningHistory
 import pl.gocards.room.entity.deck.CardLearningProgress
 import pl.gocards.room.entity.deck.CardLearningProgressAndHistory
+import pl.gocards.ui.cards.slider.page.card.SliderCardPage
+import pl.gocards.ui.cards.slider.page.card.model.CardMode
+import pl.gocards.ui.cards.slider.page.card.model.SliderCardUi
 import pl.gocards.ui.cards.slider.page.study.model.StudyCardUi
 import pl.gocards.ui.cards.slider.page.study.ui.SlidingDivider
 import pl.gocards.ui.cards.slider.page.study.ui.TermBox
 import pl.gocards.ui.cards.slider.page.study.ui.definition.DefinitionBox
 import pl.gocards.ui.cards.slider.page.study.ui.definition.DefinitionButtonsActions
 import pl.gocards.ui.cards.slider.page.study.ui.definition.ShowDefinitionBox
-import pl.gocards.ui.cards.slider.slider.SliderCardPage
-import pl.gocards.ui.cards.slider.slider.model.Mode
-import pl.gocards.ui.cards.slider.slider.model.SliderCardUi
 import pl.gocards.ui.common.SliderDropdownMenuItem
 import pl.gocards.ui.theme.AppTheme
 
@@ -64,7 +64,7 @@ val testStudyCardUi = StudyCardUi(
 val testSliderCardUi = SliderCardUi(
     id = 1,
     ordinal = 1,
-    mode = mutableStateOf(Mode.STUDY)
+    cardMode = mutableStateOf(CardMode.STUDY)
 )
 
 @Preview(showBackground = true)
