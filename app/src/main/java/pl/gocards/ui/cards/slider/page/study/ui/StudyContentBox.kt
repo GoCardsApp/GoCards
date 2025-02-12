@@ -1,6 +1,7 @@
 package pl.gocards.ui.cards.slider.page.study.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.view.ViewGroup
@@ -16,19 +17,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -80,7 +84,6 @@ fun StudyContentBox(
 
 
 @Composable
-@SuppressLint("SetJavaScriptEnabled")
 private fun HtmlStudyBox(
     page: Int,
     activePage: Int,
@@ -91,12 +94,6 @@ private fun HtmlStudyBox(
     onScroll: (enabled: Boolean) -> Unit
 ) {
     val width = remember { mutableIntStateOf(0) }
-    val scrollState = rememberScrollState()
-
-    LaunchedEffect(scrollState) {
-        snapshotFlow { scrollState.isScrollInProgress }
-            .collect { onScroll(it) }
-    }
 
     Box(
         modifier = modifier
@@ -104,61 +101,26 @@ private fun HtmlStudyBox(
             .fillMaxHeight()
             .onGloballyPositioned { coordinates ->
                 width.intValue = coordinates.size.width
-            }
-            .verticalScroll(scrollState),
+            },
         contentAlignment = Alignment.Center
     ) {
-        val textHexColor =
-            String.format("#%06X", MaterialTheme.colorScheme.onSurfaceVariant.toArgb())
-                .replace("#FF", "#")
-
         if (page == activePage) {
+            val textColor =
+                LocalTextStyle.current.color.takeOrElse { LocalContentColor.current }
+                    .toArgb()
+
+            val context = LocalContext.current
+
+            val processedContent = remember(content, width.intValue, height) {
+                processContent(context, content, width.intValue, height, textColor)
+            }
+
+            val webView = remember { ScrollAwareWebView(context, onScroll) }
+
             AndroidView(
-                factory = { context ->
-                    WebView(context).apply {
-                        webViewClient = object : WebViewClient() {
-
-                            override fun shouldOverrideUrlLoading(
-                                view: WebView?,
-                                request: WebResourceRequest
-                            ): Boolean {
-                                val intent = Intent(Intent.ACTION_VIEW, request.url)
-                                view!!.context.startActivity(intent)
-                                return true
-                            }
-                        }
-                        webChromeClient = WebChromeClient()
-
-                        settings.builtInZoomControls = true
-                        settings.displayZoomControls = false
-                        settings.javaScriptEnabled = true
-
-
-                        layoutParams = ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
-                        setBackgroundColor(android.graphics.Color.TRANSPARENT)
-                    }
-                },
+                factory = { context -> webView },
                 update = { webView ->
-                    var data = HtmlUtil.getInstance().replaceYtIframe(content, pxToDp(width.intValue), pxToDp(height))
-                    data = HtmlUtil.getInstance().replaceYtPortraitIframe(data, pxToDp(height))
-                    data = data.replace("\n", "<br/>")
-                    data = """
-                    |<header>
-                    |<style>
-                    |  *{margin:0;padding:0;-webkit-user-select: none;} 
-                    |  img{max-width: 95%}</style>
-                    |</header>
-                    |<body style='color:$textHexColor;font-family:Roboto;font-size:x-large;display:flex;height:100%37;text-align:center;overflow-wrap:anywhere;'>
-                    |
-                    |<div style='margin:auto;'>
-                    |  <div style='margin-top:20px;margin-bottom:20px;'>$data</div>
-                    |</div>
-                    |
-                    |</body>""".trimMargin()
-                    webView.loadDataWithBaseURL(null, data, "text/html", "UTF-8", null)
+                    webView.loadDataWithBaseURL(null, processedContent, "text/html", "UTF-8", null)
                 },
                 modifier = Modifier.fillMaxSize()
             )
@@ -166,6 +128,61 @@ private fun HtmlStudyBox(
     }
 }
 
+@SuppressLint("SetJavaScriptEnabled")
+private fun ScrollAwareWebView(
+    context: Context,
+    onScroll: (enabled: Boolean) -> Unit
+): ScrollAwareWebView {
+    return ScrollAwareWebView(context).apply {
+        webViewClient = object : WebViewClient() {
+
+            override fun shouldOverrideUrlLoading(
+                view: WebView?,
+                request: WebResourceRequest
+            ): Boolean {
+                val intent = Intent(Intent.ACTION_VIEW, request.url)
+                view!!.context.startActivity(intent)
+                return true
+            }
+        }
+        webChromeClient = WebChromeClient()
+
+        settings.apply {
+            javaScriptEnabled = true
+            builtInZoomControls = true
+            displayZoomControls = false
+            setSupportZoom(true)
+        }
+
+
+        layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        onScrollStart = { onScroll(true) }
+        onScrollStop = { onScroll(false) }
+    }
+}
+
+private fun processContent(
+    context: Context,
+    content: String,
+    width: Int,
+    height: Int,
+    textColor: Int
+): String {
+    val textHexColor = String.format("#%06X", textColor).replace("#FF", "#")
+    var bodyContent = HtmlUtil.getInstance().replaceYtIframe(content, pxToDp(width), pxToDp(height))
+    bodyContent = HtmlUtil.getInstance().replaceYtPortraitIframe(bodyContent, pxToDp(height))
+    bodyContent = bodyContent.replace("\n", "<br/>")
+
+    return context.assets.open("study_content_template.html")
+        .bufferedReader()
+        .use { it.readText() }
+        .replace("{{body_font_colour}}", textHexColor)
+        .replace("{{content}}", bodyContent)
+}
 
 @Composable
 private fun TextStudyBox(
