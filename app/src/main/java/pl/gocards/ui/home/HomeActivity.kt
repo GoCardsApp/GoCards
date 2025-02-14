@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import pl.gocards.App
+import pl.gocards.db.app.AppDbUtil
 import pl.gocards.db.deck.AppDeckDbUtil
 import pl.gocards.ui.auth.AuthLauncher
 import pl.gocards.ui.cards.slider.StudyCardSliderActivity
@@ -117,6 +118,12 @@ class HomeActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
             owner
         )
 
+        val homeDialogs = HomeDialogs(
+            appConfigKtxDao = AppDbUtil.getInstance(this).getDatabase(this).appConfigKtxDao(),
+            activity = this,
+            scope = this.lifecycleScope,
+            application = application
+        )
 
         setContent {
             val isShownMoreDeckMenu: MutableState<Path?> = remember { mutableStateOf(null) }
@@ -138,6 +145,7 @@ class HomeActivity : AppCompatActivity(), ActivityResultCallback<ActivityResult>
             }
 
             LaunchedEffect(isPremium) { initItems() }
+            LaunchedEffect(true) { homeDialogs.showWhatsNewDialogIfNeeded() }
         }
 
         this.onBackPressedDispatcher.addCallback(this) {

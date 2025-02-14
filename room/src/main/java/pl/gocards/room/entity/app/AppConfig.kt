@@ -29,5 +29,7 @@ data class AppConfig(
         const val FIRST_USED_AT = "FirstUsedAt"
         const val LAST_EXCEPTION_AT = "LastExceptionAt"
         const val EXPLORE_POLL_COMPLETED = "ExplorePollCompleted"
+        const val LATEST_SHOWN_WHATS_NEW_VERSION = "LatestShownWhatsNewVersion"
+        const val WHATS_NEW_REMAINING_SHOWS = "WhatsNewRemainingShows"
     }
 }

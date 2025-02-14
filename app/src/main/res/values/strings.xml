@@ -32,6 +32,9 @@
     <string name="bottom_nav_menu_explore">Explore</string>
     <string name="bottom_nav_menu_discover">Discover</string>
 
+    <string name="home_whats_new_dialog_title">New in Version 1.0.28:\nCode Highlighting!</string>
+    <string name="home_whats_new_dialog_message"><![CDATA[I\'ve been preparing for software engineering interviews recently and found code snippets incredibly useful.\n\nNow, <pre><code> blocks support syntax highlighting! 🚀\n\nExplore the Sample Deck and check it out!]]></string>
+
 
     <string name="no_decks_recently_used">No decks recently used.</string>
     <string name="no_decks_in_folder">No decks in this folder.</string>
