@@ -38,6 +38,7 @@ fun CardSliderPager(
     definitionButtonsActions: DefinitionButtonsActions?,
     studyCardLayoutParams: MutableState<StudyCardLayoutParams>,
     innerPadding: PaddingValues,
+    darkMode: Boolean,
     userScrollEnabled: MutableState<Boolean>
 ) {
     HorizontalPager(
@@ -63,6 +64,7 @@ fun CardSliderPager(
                     pagerState = pagerState,
                     innerPadding = innerPadding,
                     studyCardLayoutParams = studyCardLayoutParams,
+                    darkMode = darkMode,
                     onScroll = { userScrollEnabled.value = !it },
                     definitionButtonsActions = definitionButtonsActions
                 )

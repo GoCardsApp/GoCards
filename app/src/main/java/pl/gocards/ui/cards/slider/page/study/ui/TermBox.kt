@@ -24,6 +24,7 @@ fun TermBox(
     maxSlideToY: Int,
     sliderTouchSpace: Int,
     height: Int,
+    darkMode: Boolean,
     onScroll: (enabled: Boolean) -> Unit
 ) {
     val termHeightPxVal = studyCard.termHeightPx.value ?: 0f
@@ -49,7 +50,8 @@ fun TermBox(
         fontSize = studyCard.termFontSize,
         modifier = modifier,
         height = height,
-        onScroll = onScroll
+        onScroll = onScroll,
+        darkMode = darkMode
     )
 }
 

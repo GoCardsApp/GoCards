@@ -34,6 +34,29 @@ class CreateSampleDeck(private var application: Application) : AndroidViewModel(
                 "yt:https://www.youtube.com/embed/rthjtSAq13A"
             ),
             arrayOf(
+                "The Honest AI Assistant",
+                "<pre><code>class AI {\n" +
+                        " String answer(String question) {\n" +
+                        "  return switch (question.toLowerCase()) {\n" +
+                        "   case \"is java better than kotlin?\" ->\n" +
+                        "     \"Uhh... next question!\";\n\n" +
+                        "   case \"should i use recursion?\" ->\n" +
+                        "     \"Only if you enjoy stack overflows!\";\n\n" +
+                        "   case \"can i deploy on friday?\" ->\n" +
+                        "     \"Oh no, absolutely not!\";\n" +
+                        "   default -> \"I pretend I do not see it.\";\n" +
+                        "  };\n" +
+                        " }\n" +
+                        "\n" +
+                        " public static void main(String[] args) {\n" +
+                        "  AI assistant = new AI();\n" +
+                        "  System.out.println(\n" +
+                        "    assistant.answer(\"Can I deploy on Friday?\")\n" +
+                        "  );\n" +
+                        " }\n" +
+                        "}\n"
+            ),
+            arrayOf(
                 "What has 13 hearts, but no other organs?",
                 "A deck of cards."
             ),

@@ -77,6 +77,7 @@ fun PreviewStudyCardPage() {
             page = 0,
             pagerState = rememberPagerState(pageCount = { 1 }),
             innerPadding = PaddingValues(),
+            darkMode = true,
             studyCardLayoutParams = remember {
                 mutableStateOf(
                     StudyCardLayoutParams(
@@ -105,6 +106,7 @@ fun StudyCardPage(
     pagerState: PagerState,
     innerPadding: PaddingValues,
     studyCardLayoutParams: MutableState<StudyCardLayoutParams>,
+    darkMode: Boolean,
     onScroll: (enabled: Boolean) -> Unit = {},
 
     definitionButtonsActions: DefinitionButtonsActions = DefinitionButtonsActions()
@@ -124,7 +126,8 @@ fun StudyCardPage(
             maxSlideToY = studyCardLayoutParams.value.maxSlideToY,
             sliderTouchSpace = studyCardLayoutParams.value.sliderTouchSpace,
             height = studyCardLayoutParams.value.windowHeightPx,
-            onScroll = onScroll
+            onScroll = onScroll,
+            darkMode = darkMode,
         )
         SlidingDivider(
             termHeightPx = studyCard.termHeightPx,
@@ -149,6 +152,7 @@ fun StudyCardPage(
                 maxSlideToY = studyCardLayoutParams.value.maxSlideToY,
                 sliderTouchSpace = studyCardLayoutParams.value.sliderTouchSpace,
                 windowHeight = studyCardLayoutParams.value.windowHeightPx,
+                darkMode = darkMode,
                 onScroll = onScroll,
                 buttonsActions = definitionButtonsActions
             )

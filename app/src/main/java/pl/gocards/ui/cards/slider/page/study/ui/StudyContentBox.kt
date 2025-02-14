@@ -26,7 +26,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.PointerInputScope
@@ -61,6 +60,7 @@ fun StudyContentBox(
     fontSize: MutableState<TextUnit?>,
     modifier: Modifier,
     height: Int,
+    darkMode: Boolean,
     onScroll: (enabled: Boolean) -> Unit
 ) {
     if (isFullHtml) {
@@ -70,6 +70,7 @@ fun StudyContentBox(
             content,
             modifier,
             height,
+            darkMode,
             onScroll
         )
     } else {
@@ -90,7 +91,7 @@ private fun HtmlStudyBox(
     content: String,
     modifier: Modifier,
     height: Int,
-    @SuppressWarnings("unused")
+    darkMode: Boolean,
     onScroll: (enabled: Boolean) -> Unit
 ) {
     val width = remember { mutableIntStateOf(0) }
@@ -112,7 +113,7 @@ private fun HtmlStudyBox(
             val context = LocalContext.current
 
             val processedContent = remember(content, width.intValue, height) {
-                processContent(context, content, width.intValue, height, textColor)
+                processContent(context, content, width.intValue, height, textColor, darkMode)
             }
 
             val webView = remember { ScrollAwareWebView(context, onScroll) }
@@ -148,6 +149,7 @@ private fun ScrollAwareWebView(
         webChromeClient = WebChromeClient()
 
         settings.apply {
+            domStorageEnabled = true
             javaScriptEnabled = true
             builtInZoomControls = true
             displayZoomControls = false
@@ -170,18 +172,44 @@ private fun processContent(
     content: String,
     width: Int,
     height: Int,
-    textColor: Int
+    textColor: Int,
+    darkMode: Boolean
 ): String {
+    val containsCode = content.contains("<code")
     val textHexColor = String.format("#%06X", textColor).replace("#FF", "#")
-    var bodyContent = HtmlUtil.getInstance().replaceYtIframe(content, pxToDp(width), pxToDp(height))
-    bodyContent = HtmlUtil.getInstance().replaceYtPortraitIframe(bodyContent, pxToDp(height))
-    bodyContent = bodyContent.replace("\n", "<br/>")
+
+    val htmlUtil = HtmlUtil.getInstance()
+    val processedContent = htmlUtil.replaceYtIframe(content, pxToDp(width), pxToDp(height))
+        .let { htmlUtil.replaceYtPortraitIframe(it, pxToDp(height)) }
+        .replace("\n", "<br/>")
 
     return context.assets.open("study_content_template.html")
         .bufferedReader()
         .use { it.readText() }
         .replace("{{body_font_colour}}", textHexColor)
-        .replace("{{content}}", bodyContent)
+        .replace("{{highlight_stylesheet}}", if (containsCode) highlightCss(darkMode) else "")
+        .replace("{{highlight_script}}", if (containsCode) highlightJs() else "")
+        .replace("{{content}}", processedContent)
+}
+
+private fun highlightCss(darkMode: Boolean): String {
+    return if (darkMode) {
+        "<link rel='stylesheet' href='file:///android_asset/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css'>"
+    } else {
+        "<link rel='stylesheet' href='file:///android_asset/libs/highlight.js/11.9.0/styles/default.min.css'>"
+    }
+}
+
+private fun highlightJs(): String {
+    return """
+        <script src="file:///android_asset/libs/highlight.js/11.9.0/highlight.min.js"></script>
+        <script>document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll("pre code").forEach((block) => {
+                block.innerHTML = block.innerHTML.replace(/<br\s*\/?>/g, "\n");
+                hljs.highlightElement(block);
+            });
+        });</script>
+        """.trimIndent()
 }
 
 @Composable

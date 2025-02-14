@@ -24,6 +24,7 @@ fun DefinitionContentBox(
     maxSlideToY: Int,
     sliderTouchSpace: Int,
     height: Int,
+    darkMode: Boolean,
     onScroll: (enabled: Boolean) -> Unit
 ) {
     var finalModifier = modifier
@@ -48,7 +49,8 @@ fun DefinitionContentBox(
         fontSize = studyCard.defFontSize,
         modifier = finalModifier,
         height = height,
-        onScroll = onScroll
+        darkMode = darkMode,
+        onScroll = onScroll,
     )
 }
 

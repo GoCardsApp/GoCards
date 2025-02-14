@@ -47,6 +47,7 @@ fun DefinitionBox(
     maxSlideToY: Int,
     sliderTouchSpace: Int,
     windowHeight: Int,
+    darkMode: Boolean,
     onScroll: (enabled: Boolean) -> Unit,
     buttonsActions: DefinitionButtonsActions
 ) {
@@ -74,6 +75,7 @@ fun DefinitionBox(
             maxSlideToY,
             sliderTouchSpace,
             windowHeight,
+            darkMode,
             onScroll
         )
 

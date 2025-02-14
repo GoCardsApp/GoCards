@@ -1,12 +1,16 @@
 <head>
+    {{highlight_stylesheet}}
     <style>
         * {margin:0;padding:0;-webkit-user-select: none;}
         img {max-width: 95%}
         body {color:{{body_font_colour}};font-family:Roboto;font-size:x-large;display:flex;height:100vh;text-align:center;overflow-wrap:anywhere;}
+        code {text-align:left;}
+        .hljs {padding:5px !important;background: none !important;}
     </style>
 </head>
 <body>
 <div style='margin:auto;'>
     <div style='margin-top:20px;margin-bottom:20px;'>{{content}}</div>
 </div>
+{{highlight_script}}
 </body>
