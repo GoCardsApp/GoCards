@@ -21,6 +21,7 @@ data class PremiumInput(
     val isPremium: State<Boolean>,
     val isPremiumSwitch: State<Boolean>,
     val formattedPrice: State<String?>,
+    val canFreeTrial: State<Boolean>,
     val setPremium: () -> Unit,
     val onClickBuyPremium: () -> Unit,
     val onDisableSubscription: () -> Unit,
@@ -32,7 +33,11 @@ fun PremiumCard(input: PremiumInput) {
     DiscoverCard(
         title = {
             Column(modifier = Modifier.align(Alignment.CenterVertically)) {
-                Text(String.format(stringResource(R.string.discover_premium_title), input.formattedPrice.value))
+                if (input.canFreeTrial.value) {
+                    Text(stringResource(R.string.discover_premium_free_trial))
+                } else {
+                    Text(String.format(stringResource(R.string.discover_premium_title), input.formattedPrice.value))
+                }
             }
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -59,6 +64,10 @@ fun PremiumCard(input: PremiumInput) {
                     stringResource(R.string.discover_premium_cancel_subscription) +
                             "\n\n" +
                             stringResource(R.string.discover_premium_features)
+                } else if (input.canFreeTrial.value) {
+                            stringResource(R.string.discover_premium_features) +
+                            "\n\n" +
+                            stringResource(R.string.discover_premium_free_trial_prevent_renewal)
                 } else {
                     stringResource(R.string.discover_premium_catchphrase) +
                             "\n\n" +

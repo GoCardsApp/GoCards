@@ -199,12 +199,15 @@
     <string name="discover_premium_title">PREMIUM (%s/month)</string>
     <string name="discover_premium_cancel_subscription">You can cancel a subscription in the Google Play Store by tapping Menu, then Subscriptions.</string>
     <string name="discover_premium_catchphrase">To help GoCars reach new heights, consider supporting us with subscription. Your sponsorship will enable us to develop new exciting features!</string>
+    <string name="discover_premium_free_trial">Premium, Free for a Month!</string>
+    <string name="discover_premium_free_trial_prevent_renewal">If you don’t want to renew, make sure to cancel your subscription after signing up.</string>
+
     <string name="discover_premium_features">
     The premium version adds:\n
-    - Organize decks into folders\n
-    - Browse all cards in full mode (similar to study mode)\n
-    - Deck Search: Find decks by name\n
-    - Card Search: Find cards by text
+    - Creating folders\n
+    - Browsing all cards, similar to study mode\n
+    - Searching for decks by name\n
+    - Searching for cards by text
     </string>
     <string name="discover_premium_trial_promo_code">Ask for a trial promo code on Discord.</string>
 

@@ -52,6 +52,8 @@ class BillingClient(
 
     private val formattedPrice = mutableStateOf("")
 
+    private val canFreeTrial = mutableStateOf(false)
+
     private fun getBillingClient(): BillingClient {
         val billingClient = BillingClient.newBuilder(context)
             .enablePendingPurchases(
@@ -155,6 +157,9 @@ class BillingClient(
 
         val pricingPhase = subscriptionOfferDetails.pricingPhases.pricingPhaseList[0]
         formattedPrice.value = pricingPhase.formattedPrice
+        if (pricingPhase.priceAmountMicros == 0L) {
+            canFreeTrial.value = true
+        }
     }
 
     private suspend fun checkIfPremiumSubscriptionIsActive() {
@@ -181,5 +186,9 @@ class BillingClient(
 
     fun getFormattedPrice(): State<String> {
         return formattedPrice
+    }
+
+    fun getCanFreeTrial(): State<Boolean> {
+        return canFreeTrial
     }
 }

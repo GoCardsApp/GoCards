@@ -57,6 +57,7 @@ class DiscoverInputFactory {
                 isPremium = premiumViewModel.isPremium(),
                 isPremiumSwitch = premiumViewModel.isPremiumSwitch,
                 setPremium = { premiumViewModel.isPremiumSwitch.value = true },
+                canFreeTrial = billingClient.getCanFreeTrial(),
                 onClickBuyPremium = {
                     scope.launch {
                         if (isPremiumMockEnabled()) {
