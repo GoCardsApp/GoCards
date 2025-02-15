@@ -189,8 +189,11 @@
     <string name="discover_review_title">Support Us with a Review!</string>
     <string name="discover_review_description">Leave a review on Google Play to help others discover our app and support its continued development.</string>
 
-    <string name="discover_feedback_title">What features do you miss in GoCards?</string>
-    <string name="discover_feedback_description">Take the Survey!</string>
+    <string name="discover_feedback_review_title">What would convince you to REVIEW?</string>
+    <string name="discover_feedback_review_description">Take the Survey!</string>
+
+    <string name="discover_feedback_premium_title">What would convince you to buy PREMIUM?</string>
+    <string name="discover_feedback_premium_description">Take the Survey!</string>
 
 
     <string name="discover_community_title">Community</string>

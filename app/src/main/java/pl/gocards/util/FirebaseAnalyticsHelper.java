@@ -100,7 +100,10 @@ public class FirebaseAnalyticsHelper {
     public static final String STUDY_OPEN_REVIEW_IN_APP = "study_open_review_in_app";
 
     @NonNull
-    public static final String DISCOVER_OPEN_FEEDBACK = "discover_open_feedback";
+    public static final String DISCOVER_OPEN_FEEDBACK_REVIEW = "discover_open_feedback_review";
+
+    @NonNull
+    public static final String DISCOVER_OPEN_FEEDBACK_PREMIUM = "discover_open_feedback_premium";
 
     @NonNull
     public static final String EXPLORE_POLL_YES = "explore_poll_yes";
@@ -273,8 +276,12 @@ public class FirebaseAnalyticsHelper {
         firebaseAnalytics.logEvent(STUDY_OPEN_REVIEW_IN_APP, new Bundle());
     }
 
-    public void feedbackOpenDiscord() {
-        firebaseAnalytics.logEvent(DISCOVER_OPEN_FEEDBACK, new Bundle());
+    public void setDiscoverOpenFeedbackReview() {
+        firebaseAnalytics.logEvent(DISCOVER_OPEN_FEEDBACK_PREMIUM, new Bundle());
+    }
+
+    public void setDiscoverOpenFeedbackPremium() {
+        firebaseAnalytics.logEvent(DISCOVER_OPEN_FEEDBACK_PREMIUM, new Bundle());
     }
 
     public void explorePollYes() {

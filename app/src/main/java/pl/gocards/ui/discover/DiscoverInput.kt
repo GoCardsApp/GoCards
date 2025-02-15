@@ -5,7 +5,8 @@ import android.content.Context
 import androidx.lifecycle.LifecycleCoroutineScope
 import kotlinx.coroutines.launch
 import pl.gocards.ui.common.OpenUrl
-import pl.gocards.ui.discover.feedback.FeedbackInput
+import pl.gocards.ui.discover.feedback.FeedbackPremiumInput
+import pl.gocards.ui.discover.feedback.FeedbackReviewInput
 import pl.gocards.ui.discover.premium.BillingClient
 import pl.gocards.ui.discover.premium.PremiumInput
 import pl.gocards.ui.discover.premium.PremiumViewModel
@@ -19,9 +20,10 @@ import pl.gocards.util.FirebaseAnalyticsHelper
  * @author Grzegorz Ziemski
  */
 data class DiscoverInput(
-    val premium: PremiumInput,
     val review: ReviewInput,
-    val feedback: FeedbackInput,
+    val feedbackReview: FeedbackReviewInput,
+    val premium: PremiumInput,
+    val feedbackPremium: FeedbackPremiumInput,
     val onClickDiscord: () -> Unit,
     val onFanpageClick: () -> Unit,
     val onYoutubeClick: () -> Unit
@@ -49,6 +51,22 @@ class DiscoverInputFactory {
         this.scope = scope
 
         return DiscoverInput(
+            review = ReviewInput(
+                canReview = reviewViewModel.discoverCanReview,
+                onClickReview = {
+                    analytics.discoverOpenReview()
+                    inAppReviewClient.launch(
+                        onSuccess = {
+                            analytics.discoverOpenReviewInApp()
+                            openAppPage()
+                        },
+                        onFailure = { openAppPage() }
+                    )
+                }
+            ),
+            feedbackReview = FeedbackReviewInput(
+                onClickTakeSurvey = { openFeedbackReview() }
+            ),
             onClickDiscord = { openDiscord() },
             onFanpageClick = { openFanpage() },
             onYoutubeClick = { openYoutube() },
@@ -80,21 +98,8 @@ class DiscoverInputFactory {
                     openSubscriptions()
                 }
             ),
-            review = ReviewInput(
-                canReview = reviewViewModel.discoverCanReview,
-                onClickReview = {
-                    analytics.discoverOpenReview()
-                    inAppReviewClient.launch(
-                        onSuccess = {
-                            analytics.discoverOpenReviewInApp()
-                            openAppPage()
-                        },
-                        onFailure = { openAppPage() }
-                    )
-                }
-            ),
-            feedback = FeedbackInput(
-                onClickTakeSurvey = { openFeedback() }
+            feedbackPremium = FeedbackPremiumInput(
+                onClickTakeSurvey = { openFeedbackPremium() }
             )
         )
     }
@@ -123,9 +128,14 @@ class DiscoverInputFactory {
         openUrl(Config.getInstance(this.context).subscriptionsUrl(this.context))
     }
 
-    private fun openFeedback() {
-        analytics.feedbackOpenDiscord()
-        openUrl(Config.getInstance(this.context).feedbackUrl(this.context))
+    private fun openFeedbackReview() {
+        analytics.setDiscoverOpenFeedbackReview()
+        openUrl(Config.getInstance(this.context).feedbackReviewUrl(this.context))
+    }
+
+    private fun openFeedbackPremium() {
+        analytics.setDiscoverOpenFeedbackPremium()
+        openUrl(Config.getInstance(this.context).feedbackPremiumUrl(this.context))
     }
 
     private fun isPremiumMockEnabled(): Boolean {

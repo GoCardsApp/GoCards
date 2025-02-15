@@ -14,25 +14,25 @@ import pl.gocards.ui.discover.DiscoverCard
 /**
  * @author Grzegorz Ziemski
  */
-data class FeedbackInput(
+data class FeedbackReviewInput(
     val onClickTakeSurvey: () -> Unit
 )
 
 @Composable
-fun FeedbackCard(input: FeedbackInput) {
+fun FeedbackReviewCard(input: FeedbackReviewInput) {
     DiscoverCard(
         title = {
             Column(modifier = Modifier.align(Alignment.CenterVertically)) {
                 Text(
                     modifier = Modifier.padding(0.dp, 10.dp),
-                    text = stringResource(R.string.discover_feedback_title),
+                    text = stringResource(R.string.discover_feedback_review_title),
                 )
             }
         },
         body = {
             Text(
                 modifier = Modifier.padding(15.dp),
-                text = stringResource(R.string.discover_feedback_description)
+                text = stringResource(R.string.discover_feedback_review_description)
             )
         },
         onClickBody = { input.onClickTakeSurvey() }

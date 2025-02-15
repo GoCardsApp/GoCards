@@ -89,8 +89,12 @@ public class Config {
         return getPropertyString(context, "youtube.url");
     }
 
-    public String feedbackUrl(@NonNull Context context) {
-        return getPropertyString(context, "feedback.url");
+    public String feedbackReviewUrl(@NonNull Context context) {
+        return getPropertyString(context, "feedback.review.url");
+    }
+
+    public String feedbackPremiumUrl(@NonNull Context context) {
+        return getPropertyString(context, "feedback.premium.url");
     }
 
     public boolean isUnderConstruction(@NonNull Context context) {
